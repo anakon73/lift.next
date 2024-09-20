@@ -6,6 +6,8 @@ export default antfu({
     'readable-tailwind': eslintPluginReadableTailwind,
   },
   rules: {
+    'max-len': ['error', {code: 80}],
+    'perfectionist/sort-imports': ['off'],
     'import/order': [
       'warn',
       { groups: ['builtin', 'external'], warnOnUnassignedImports: true },
