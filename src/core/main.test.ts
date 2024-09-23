@@ -1,24 +1,27 @@
 import { describe, expect, it } from 'vitest'
-import { lift } from './main'
+import { getLift } from './main'
 
 describe('lift', () => {
-  it('lift moving up', () => {
-    lift.acceptRequest(5)
+  it('moving', () => {
+    const lift = getLift()
+
+    lift.acceptRequest(2)
 
     lift.tick()
+
+    expect(lift.currentFloor).toEqual(2)
 
     lift.acceptRequest(3)
 
     lift.tick()
 
-    console.log(lift.requestQueue)
-
-    expect(lift.targetFloor).toEqual(3)
     expect(lift.currentFloor).toEqual(3)
 
-    // lift.tick()
-    // lift.tick()
+    lift.acceptRequest(5)
 
-    // expect(lift.currentFlour).toEqual(5)
+    lift.tick()
+    lift.tick()
+
+    expect(lift.currentFloor).toEqual(5)
   })
 })

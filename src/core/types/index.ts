@@ -1,12 +1,12 @@
+export type Dir = 'up' | 'down'
+
 export interface Lift {
   liftId: number
   currentFloor: number
   status: 'moving' | 'idle'
-  movingDirection: 'up' | 'down' | null
+  dir: Dir | null
   requestQueue: number[]
-  targetFloor: number
-  addToTargetFloor: (floorNumber: number) => void
+  sort: () => Dir
   acceptRequest: (liftRequest: number) => void
-  moveToFloor: () => void
   tick: () => void
 }
