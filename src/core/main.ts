@@ -3,7 +3,7 @@ import type { Lift } from './types'
 export function getLift(): Lift {
   const lift: Lift = {
     liftId: 1,
-    currentFloor: 3,
+    currentFloor: 1,
     status: 'idle',
     dir: 'up',
     requestQueue: [],
@@ -23,13 +23,14 @@ export function getLift(): Lift {
 
     tick() {
       if (this.requestQueue.length > 0) {
-        this.currentFloor += this.sort() === 'up' ? 1 : -1
-
         const a = this.requestQueue.indexOf(this.currentFloor)
 
         if (a !== -1) {
           this.requestQueue.splice(a, 1)
+          return
         }
+
+        this.currentFloor += this.sort() === 'up' ? 1 : -1
       }
     },
   }
