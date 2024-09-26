@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { onMounted, reactive } from 'vue'
 import { ChevronDownIcon, ChevronUpIcon } from '@radix-icons/vue'
 
 import { getLift } from '@/core/main'
@@ -61,10 +60,16 @@ function getLiftPosition() {
         >
           <p>{{ button }}</p>
           <div class="flex flex-col">
-            <button @click="lift.acceptRequest(button)">
+            <button
+              v-if="button !== floorButtons.length"
+              @click="lift.acceptRequest(button)"
+            >
               <ChevronUpIcon class="size-5" />
             </button>
-            <button @click="lift.acceptRequest(button)">
+            <button
+              v-if="button !== 1"
+              @click="lift.acceptRequest(button)"
+            >
               <ChevronDownIcon class="size-5" />
             </button>
           </div>
