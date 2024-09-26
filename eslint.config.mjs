@@ -6,7 +6,7 @@ export default antfu({
     'readable-tailwind': eslintPluginReadableTailwind,
   },
   rules: {
-    'max-len': ['error', {code: 80}],
+    'max-len': ['error', { code: 80 }],
     'perfectionist/sort-imports': ['off'],
     'import/order': [
       'warn',
@@ -25,6 +25,6 @@ export default antfu({
     }],
     ...eslintPluginReadableTailwind.configs.warning.rules,
     ...eslintPluginReadableTailwind.configs.error.rules,
-    'readable-tailwind/multiline': ['warn', { printWidth: 90 }],
+    'readable-tailwind/multiline': ['warn', { printWidth: 80 }],
   },
 })
