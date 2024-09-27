@@ -49,6 +49,7 @@ function getLiftPosition() {
           class="
             absolute flex h-14 w-full items-center justify-between rounded-lg
             bg-pink-600 px-2 text-sm text-white transition-all duration-500
+            ease-in
           "
           :style="{ top: getLiftPosition() }"
         >
