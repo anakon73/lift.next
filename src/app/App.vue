@@ -1,15 +1,14 @@
 <script setup lang="ts">
 import { ChevronDownIcon, ChevronUpIcon } from '@radix-icons/vue'
-
-import { getLift } from '@/core/main'
+import { LiftImpl } from '@/core/main'
 
 const floorButtons = Array.from({ length: 9 }, (_, i) => i + 1)
 const reverseFloors = floorButtons.reverse()
 
-const lift = reactive(getLift())
+const lift = reactive(new LiftImpl())
 
 onMounted(() => {
-  const interval = setInterval(() => lift.tick(), 500)
+  const interval = setInterval(() => lift.tick(), 1000)
   return () => clearInterval(interval)
 })
 
@@ -34,8 +33,13 @@ function getLiftPosition() {
           class="
             size-12 rounded-full bg-blue-600 text-lg font-semibold text-white
             shadow-lg
+
+            disabled:bg-blue-400
           "
-          @click="lift.acceptRequest(button)"
+          :disabled="lift.requestQueue.some((v) => v.floor === button)"
+          @click="lift.acceptRequest({
+            floor: button, call: 'inside', dir: null,
+          })"
         >
           {{ button }}
         </button>
@@ -43,13 +47,20 @@ function getLiftPosition() {
       <div class="relative w-20">
         <div
           class="
-            absolute h-14 w-full rounded-lg bg-pink-600 text-white
-            transition-all
+            absolute flex h-14 w-full items-center justify-between rounded-lg
+            bg-pink-600 px-2 text-sm text-white transition-all duration-500
           "
           :style="{ top: getLiftPosition() }"
         >
-          {{ lift.requestQueue }}
-          {{ lift.currentFloor }}
+          <p>floor: {{ lift.currentFloor }}</p>
+          <ChevronUpIcon
+            v-if="lift.dir === 'up'"
+            class="size-5 animate-bounce"
+          />
+          <ChevronDownIcon
+            v-if="lift.dir === 'down'"
+            class="size-5 animate-bounce"
+          />
         </div>
       </div>
       <div class="divide-y divide-blue-600 border-y border-blue-600">
@@ -62,13 +73,18 @@ function getLiftPosition() {
           <div class="flex flex-col">
             <button
               v-if="button !== floorButtons.length"
-              @click="lift.acceptRequest(button)"
+              @click="lift.acceptRequest({
+                floor: button, call: 'outside', dir: 'up',
+              })
+              "
             >
               <ChevronUpIcon class="size-5" />
             </button>
             <button
               v-if="button !== 1"
-              @click="lift.acceptRequest(button)"
+              @click="lift.acceptRequest({
+                floor: button, call: 'outside', dir: 'down',
+              })"
             >
               <ChevronDownIcon class="size-5" />
             </button>
