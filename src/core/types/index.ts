@@ -1,12 +1,16 @@
 export type Dir = 'up' | 'down'
 
-export interface Lift {
-  liftId: number
-  currentFloor: number
-  status: 'moving' | 'idle'
+export type Request = {
+  floor: number
   dir: Dir | null
-  requestQueue: number[]
-  sort: () => Dir
-  acceptRequest: (liftRequest: number) => void
+  call: 'inside' | 'outside'
+}
+
+export interface Lift {
+  currentFloor: number
+  status: 'idle' | 'move'
+  dir: Dir | null
+  requestQueue: Request[]
+  acceptRequest: (liftRequest: Request) => void
   tick: () => void
 }
