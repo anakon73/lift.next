@@ -87,6 +87,8 @@ function getLiftPosition() {
           <div class="flex flex-col">
             <button
               v-if="button !== floorButtons.length"
+              :disabled="requestQueue.some((v) => v.floor === button)"
+              class="disabled:opacity-70"
               @click="lift.acceptRequest({
                 floor: button, call: 'outside', dir: 'up',
               })
@@ -96,6 +98,8 @@ function getLiftPosition() {
             </button>
             <button
               v-if="button !== 1"
+              :disabled="requestQueue.some((v) => v.floor === button)"
+              class="disabled:opacity-70"
               @click="lift.acceptRequest({
                 floor: button, call: 'outside', dir: 'down',
               })"
