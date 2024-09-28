@@ -1,10 +1,30 @@
-import type { Dir, Lift, Request } from './types'
+import type { Dir, Lift as ILift, Request } from './types'
 
-export class LiftImpl implements Lift {
+abstract class Lift implements ILift {
   currentFloor: number = 1
   status: 'idle' | 'move' = 'idle'
   dir: Dir | null = null
   requestQueue: Request[] = []
+
+  abstract acceptRequest(liftRequest: Request): void
+  abstract tick(): void
+}
+
+export class LiftImpl extends Lift {
+  onChangeFloor: () => void
+  onChangeDir: () => void
+  onChangeRequestQueue: () => void
+
+  constructor(
+    onChangeFloor: () => void,
+    onChangeDir: () => void,
+    onChangeRequestQueue: () => void,
+  ) {
+    super()
+    this.onChangeFloor = onChangeFloor
+    this.onChangeDir = onChangeDir
+    this.onChangeRequestQueue = onChangeRequestQueue
+  }
 
   acceptRequest(liftRequest: Request): void {
     this.requestQueue.push(liftRequest)
@@ -12,14 +32,17 @@ export class LiftImpl implements Lift {
 
   private sort(): Dir {
     if (this.dir === 'up') {
-      return this.requestQueue.some(v => v.floor > this.currentFloor)
-        ? 'up'
-        : 'down'
+      if (this.requestQueue.some(v => v.floor > this.currentFloor)) {
+        return 'up'
+      }
+      return 'down'
     }
-    else if (this.dir === 'down') {
-      return this.requestQueue.some(v => v.floor < this.currentFloor)
-        ? 'down'
-        : 'up'
+
+    if (this.dir === 'down') {
+      if (this.requestQueue.some(v => v.floor < this.currentFloor)) {
+        return 'down'
+      }
+      return 'up'
     }
 
     return this.requestQueue.some(v => v.floor > this.currentFloor)
@@ -27,35 +50,44 @@ export class LiftImpl implements Lift {
       : 'down'
   }
 
-  private changeDirection(newDirection: Dir): void {
-    this.dir = newDirection
-  }
-
-  tick(): void {
+  tick() {
     if (this.requestQueue.length > 0) {
       this.status = 'move'
 
-      const a = this.requestQueue.findIndex(v => v.floor === this.currentFloor)
-
-      if (a !== -1 && (
-        this.requestQueue[a].dir === this.dir
-        || this.requestQueue[a].dir === null
+      const currentRequestIndex = this.requestQueue.findIndex(
+        v => v.floor === this.currentFloor,
       )
-      ) {
-        this.requestQueue.splice(a, 1)
-        return
+
+      if (currentRequestIndex !== -1) {
+        const request = this.requestQueue[currentRequestIndex]
+
+        if (
+          (request.dir === this.dir || request.dir === null)
+          && ((this.dir === 'up' && request.dir !== 'down')
+            || (this.dir === 'down' && request.dir !== 'up'))
+        ) {
+          this.requestQueue.splice(currentRequestIndex, 1)
+          return
+        }
       }
 
       const nextDirection = this.sort()
+
       if (this.dir !== nextDirection) {
-        this.changeDirection(nextDirection)
+        this.dir = nextDirection
       }
 
-      this.currentFloor += this.sort() === 'up' ? 1 : -1
+      this.currentFloor += this.dir === 'up' ? 1 : -1
+
+      this.onChangeFloor()
+      this.onChangeDir()
     }
     else {
       this.status = 'idle'
       this.dir = null
+      this.onChangeDir()
     }
+
+    this.onChangeRequestQueue()
   }
 }
