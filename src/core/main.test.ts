@@ -7,7 +7,7 @@ describe('lift', () => {
   let lift: LiftImpl
 
   beforeEach(() => {
-    lift = new LiftImpl()
+    lift = new LiftImpl(() => {}, () => {}, () => {})
   })
 
   it('should initialize correctly', () => {
