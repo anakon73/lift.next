@@ -1,14 +1,27 @@
 <script setup lang="ts">
 import { ChevronDownIcon, ChevronUpIcon } from '@radix-icons/vue'
+
+import type { Dir, Request } from '@/core/types'
 import { LiftImpl } from '@/core/main'
 
 const floorButtons = Array.from({ length: 9 }, (_, i) => i + 1)
 const reverseFloors = floorButtons.reverse()
 
-const lift = reactive(new LiftImpl())
+const currentFloor = ref(1)
+const dir = ref<Dir | null>(null)
+const requestQueue = ref<Request[]>([])
+
+const lift: LiftImpl = new LiftImpl(
+  () => currentFloor.value = lift.currentFloor,
+  () => dir.value = lift.dir,
+  () => requestQueue.value = lift.requestQueue,
+)
 
 onMounted(() => {
-  const interval = setInterval(() => lift.tick(), 1000)
+  const interval = setInterval(
+    () => lift.tick(),
+    600,
+  )
   return () => clearInterval(interval)
 })
 
@@ -16,7 +29,7 @@ function getLiftPosition() {
   const floorHeight = 56
   const totalFloors = floorButtons.length
 
-  return `${(totalFloors - lift.currentFloor) * floorHeight}px`
+  return `${(totalFloors - currentFloor.value) * floorHeight}px`
 }
 </script>
 
@@ -36,7 +49,7 @@ function getLiftPosition() {
 
             disabled:bg-blue-400
           "
-          :disabled="lift.requestQueue.some((v) => v.floor === button)"
+          :disabled="requestQueue.some((v) => v.floor === button)"
           @click="lift.acceptRequest({
             floor: button, call: 'inside', dir: null,
           })"
@@ -53,13 +66,13 @@ function getLiftPosition() {
           "
           :style="{ top: getLiftPosition() }"
         >
-          <p>floor: {{ lift.currentFloor }}</p>
+          <p>floor: {{ currentFloor }}</p>
           <ChevronUpIcon
-            v-if="lift.dir === 'up'"
+            v-if="dir === 'up'"
             class="size-5 animate-bounce"
           />
           <ChevronDownIcon
-            v-if="lift.dir === 'down'"
+            v-if="dir === 'down'"
             class="size-5 animate-bounce"
           />
         </div>
